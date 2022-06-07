@@ -7,9 +7,11 @@
 
 <p align="center">
   <a href="#Overview">Overview</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#use-openprompt">How To Use</a> •
-  <a href="#citation">Citation</a> •
+  <a href="#Installation">Installation</a> •
+  <a href="#What Can You Do via SQL-Rewriter">How To Use</a> •
+  <a href="#Datasets">Datasets</a> •
+  <a href="#Known Issues">Known Issues</a> •
+  <a href="#Citation">Citation</a> •
 </p>
 
 </div>
@@ -32,6 +34,10 @@
 
 </div>
 
+## Installation
+
+**Note: 仅需要安装JAVA环境就可运行项目，早期的JDK版本在Calcite上有编码问题，所以建议使用JDK11以上版本。 点击查看[安装文档](https://www.oracle.com/java/technologies/downloads/#java11)**
+
 
 ## What Can You Do via SQL-Rewriter?
 
@@ -47,11 +53,6 @@
 * api: /rewriter POST {sql: "select....", schema: {....}}
 
 ![demo](demo_api.gif)
-
-
-## Installation
-
-**Note: 仅需要安装JAVA环境就可运行项目，早期的JDK版本在Calcite上有编码问题，所以建议使用JDK11以上版本。 点击查看[安装文档](https://www.oracle.com/java/technologies/downloads/#java11)**
 
 ## Datasets
 
