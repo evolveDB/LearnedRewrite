@@ -57,7 +57,7 @@
 
 ## Datasets
 
-For the online version, we support any dataset with differnt legal schema. By default we use TPC-H in *evolveRewrite*.
+For the online version, we support datasets with different legal schema. By default we adopt TPC-H schema in *evolveRewrite*.
 
 ## Issues
 Major improvement/enhancement in future.
