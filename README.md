@@ -24,7 +24,7 @@
 
 ## Overview
 
-**SQL-Rewriter**  is a statement rewriter based on [Calcite](https://github.com/apache/calcite). We optimized the logic used by the Calcite rule.
+**evolveRewrite**  is a learned SQL transformation tool, which takes as input a SQL query and corresponding statistics (e.g., schema, #-table rows), finds the optimal rewrite sequence and outputs an optimized rewritten query. Currently *evolveRewrite* is developled based on [Calcite](https://github.com/apache/calcite).
 
 
 <div align="center">
@@ -38,9 +38,9 @@
 **Note: 仅需要安装JAVA环境就可运行项目，早期的JDK版本在Calcite上有编码问题，所以建议使用JDK11以上版本。 点击查看[安装文档](https://www.oracle.com/java/technologies/downloads/#java11)**
 
 
-## What Can You Do via SQL-Rewriter?
+## What Can You Do via evolveRewrite?
 
-*Use Code*
+*Code Usage*
 
 * 可在Interllij IDEA等IDE中直接运行test。
 * 当前测试数据基于TPCH,如需修改为其它测试数据可修改```src/main/schema.json```中json格式的schema
@@ -57,12 +57,18 @@
 
 ## Datasets
 
-Now we used TPCH
+For the online version, we support any dataset with differnt legal schema. By default we use TPC-H in *evolveRewrite*.
 
 ## Issues
 Major improvement/enhancement in future.
 
 * add custom rules
+* update the RA2SQL script (e.g., avoiding useless changes from the origin SQL)
+* support cost models of mainstream databases
+* verify rewriting equivalence 
+* add more rewriting information in the front-end pages
+* test under more real scenarios (welcome to contact us:))
+
 
 ## Citation
 Please cite our paper if you use SQL-Rewriter in your work
