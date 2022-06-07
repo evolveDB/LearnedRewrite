@@ -8,7 +8,6 @@
 <p align="center">
   <a href="#Overview">Overview</a> •
   <a href="#Installation">Installation</a> •
-  <a href="## What Can You Do via SQL-Rewriter?">What Can You Do via SQL-Rewriter?</a> •
   <a href="#Datasets">Datasets</a> •
   <a href="#Issues">Issues</a> •
   <a href="#Citation">Citation</a> •
