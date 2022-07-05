@@ -142,7 +142,7 @@ def query_performance_benchmark(pooled_db, sql_query_input_file, result_output_f
             'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
             'max_workers': '1'}})
 
-        job = scheduler.add_job(monitor_thread_function, 'interval', seconds=5, args=(pooled_db,), name='mysql_monitor',
+        job = scheduler.add_job(monitor_thread_function, 'interval', seconds=10, args=(pooled_db,), name='mysql_monitor',
                                 max_instances=1)
         scheduler.start()
 
