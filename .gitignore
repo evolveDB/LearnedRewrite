@@ -1,3 +1,10 @@
 out
 .idea
 nohup.out
+data/job-small
+*.log
+bin/*.log
+data/sample/*.txt
+target
+bin/find_stock.py
+logs

@@ -1,0 +1,84 @@
+<assembly>
+    <id>release</id>
+    <formats>
+        <!--支持 zip，tar，tar.gz，tar.bz2，jar，dir，war 等 -->
+<!--        <format>tar.gz</format>-->
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <!-- 把项目相关的说明文件，打包进zip文件的根目录 -->
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>USAGE*</include>
+<!--                <include>README*</include>-->
+<!--                <include>LICENSE*</include>-->
+<!--                <include>NOTICE*</include>-->
+            </includes>
+        </fileSet>
+        <!-- 把项目的配置文件，打包进zip包的conf目录 -->
+        <fileSet>
+            <directory>${project.build.directory}/conf</directory>
+            <outputDirectory>/conf</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <fileMode>0644</fileMode>
+            <includes>
+                <include>*.properties</include>
+                <include>**/*.txt</include>
+                <include>**/*.xml</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.build.directory}/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <!-- 把项目编译的jar包，打包进zip包的根目录 -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>${project.build.finalName}.jar</include>
+            </includes>
+        </fileSet>
+        <!-- 把项目的脚本文件，打包进zip包的bin目录 -->
+        <fileSet>
+            <directory>${project.basedir}/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+            <includes>
+                <include>**/*.sh</include>
+                <include>**/*.py</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/data</directory>
+            <outputDirectory>/data</outputDirectory>
+            <includes>
+                <include>sample/*.*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+            <includes>
+                <include>**/*.bat</include>
+            </includes>
+        </fileSet>
+
+    </fileSets>
+<!--    <dependencySets>-->
+<!--        <dependencySet>-->
+<!--            <outputDirectory>libs</outputDirectory>-->
+<!--        </dependencySet>-->
+<!--    </dependencySets>-->
+</assembly>

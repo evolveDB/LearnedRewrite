@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <Target>System.out</Target>
+        <encoder>
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss}\t[%thread]\t%-5level\t%logger\t[%file:%line]\t[%X{logid}]\t%msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/ai4db.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover -->
+            <fileNamePattern>
+                logs/ai4db.log.%d{yyyy-MM-dd}.gz
+            </fileNamePattern>
+            <maxHistory>120</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss}\t[%thread]\t%-5level\t%logger\t[%file:%line]\t[%X{logid}]\t%msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.calcite">
+        <level value="INFO"/>
+    </logger>
+
+    <root level="${log.level}">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
