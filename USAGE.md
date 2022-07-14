@@ -21,17 +21,17 @@ You can find them at data/sample directory
 
 Q. how to get query log?
 
-you can turn of **all query log** for mysql use method in this article:https://blog.csdn.net/u010735147/article/details/81871560
+you can turn on **all query log** for mysql use method in this article:https://blog.csdn.net/u010735147/article/details/81871560
 
-generally for mysql, execute following command:
+generally for mysql, execute following commands:
 * ```SET GLOBAL general_log = 'ON'; ```
 * ```show variables like 'general_log_file'; ```
 * then you can find all query in the file ${general_log_file}
-* use ```cat general.log|awk -F'\t' 'NR>=4{print $3";"}'``` to generate valid input file for evaluation
+* use ```cat general.log|grep "SELECT"|awk -F'\t' 'NR>=4{print $3";"}'``` to generate valid input file for evaluation
 
-if difficult to turn on all query log for your production environment, you can turn on **slow log** use method in this article:https://www.cnblogs.com/luyucheng/p/6265594.html#:~:text=%E8%AE%BE%E7%BD%AE%E6%85%A2%E6%9F%A5%E8%AF%A2%E6%97%A5%E5%BF%97%E5%AD%98%E6%94%BE%E7%9A%84%E4%BD%8D%E7%BD%AE%20mysql%20%3E%20set,global%20slow_query_log_file%20%3D%27%2Fusr%2Flocal%2Fmysql%2Fdata%2Fslow.log%27%3B%20%E6%9F%A5%E8%AF%A2%E8%B6%85%E8%BF%871%E7%A7%92%E5%B0%B1%E8%AE%B0%E5%BD%95
+if difficult to turn on all query log for your production environment, you can turn on **slow log** use method in this article:https://www.cnblogs.com/luyucheng/p/6265594.html
 
-generally for mysql, execute following command:
+generally for mysql, execute following commands:
 * ```set global slow_query_log=ON;```
 * ```show variables like 'slow_query_log_file';```
 * then you can find all query in the file ${slow_query_log_file}
@@ -52,6 +52,5 @@ mysql> SET GLOBAL log_output='TABLE';#dangerous, only for test, not for producti
 ## Misc
 ```commandline
 python bin/ai4db_evaluation.py --host 127.0.0.1 -u root -p root -D imdbload -a rewrite data/job/origin.sql data/job/rewrite.sql
-python bin/ai4db_evaluation.py -uroot -proot -Dimdbload -t 10 -a benchmark data/job/origin.sql data/sample/origin_out.txt
-python bin/ai4db_evaluation.py -uroot -proot -Dimdbload -t 10 -a benchmark data/job/rewrite.sql data/sample/rewrite_out.txt
+python bin/ai4db_evaluation.py -uroot -proot -Dimdbload -a benchmark data/sample/origin.sql data/sample/benchmark_out.xlsx
 ```
