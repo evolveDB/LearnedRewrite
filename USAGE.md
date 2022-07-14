@@ -35,7 +35,7 @@ generally for mysql, execute following commands:
 * ```set global slow_query_log=ON;```
 * ```show variables like 'slow_query_log_file';```
 * then you can find all query in the file ${slow_query_log_file}
-* use ```mysqldumpslow -a  slow.log|grep "SELECT"|awk '{sub(/^[ ]/,"");sub(/[ ]$/,"");print $0";";}'``` to get valid input file for evaluation
+* use ```mysqldumpslow -a  slow.log|grep "SELECT"|awk '{gsub(/^[ \t]+| [ \t]+$/,"");print $0";";}'``` to get valid input file for evaluation
 
 if slow_query_log_file has not been set, use command ```set global slow_query_log_file='/xxx/xxx/data/slow.log';``` to set slow_query_log_file 
 
