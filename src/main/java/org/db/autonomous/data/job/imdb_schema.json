@@ -1,0 +1,560 @@
+[
+ {
+  "table": "aka_name",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "person_id",
+    "type": "int"
+   },
+   {
+    "name": "name",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_index",
+    "type": "varchar"
+   },
+   {
+    "name": "name_pcode_cf",
+    "type": "varchar"
+   },
+   {
+    "name": "name_pcode_nf",
+    "type": "varchar"
+   },
+   {
+    "name": "surname_pcode",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "aka_title",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "title",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_index",
+    "type": "varchar"
+   },
+   {
+    "name": "kind_id",
+    "type": "int"
+   },
+   {
+    "name": "production_year",
+    "type": "int"
+   },
+   {
+    "name": "phonetic_code",
+    "type": "varchar"
+   },
+   {
+    "name": "episode_of_id",
+    "type": "int"
+   },
+   {
+    "name": "season_nr",
+    "type": "int"
+   },
+   {
+    "name": "episode_nr",
+    "type": "int"
+   },
+   {
+    "name": "note",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "cast_info",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "person_id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "person_role_id",
+    "type": "int"
+   },
+   {
+    "name": "note",
+    "type": "text"
+   },
+   {
+    "name": "nr_order",
+    "type": "int"
+   },
+   {
+    "name": "role_id",
+    "type": "int"
+   }
+  ]
+ },
+ {
+  "table": "char_name",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "name",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_index",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_id",
+    "type": "int"
+   },
+   {
+    "name": "name_pcode_nf",
+    "type": "varchar"
+   },
+   {
+    "name": "surname_pcode",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "comp_cast_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "kind",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "company_name",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "name",
+    "type": "varchar"
+   },
+   {
+    "name": "country_code",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_id",
+    "type": "int"
+   },
+   {
+    "name": "name_pcode_nf",
+    "type": "varchar"
+   },
+   {
+    "name": "name_pcode_sf",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "company_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "kind",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "complete_cast",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "subject_id",
+    "type": "int"
+   },
+   {
+    "name": "status_id",
+    "type": "int"
+   }
+  ]
+ },
+ {
+  "table": "info_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "info",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "keyword",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "keyword",
+    "type": "varchar"
+   },
+   {
+    "name": "phonetic_code",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "kind_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "kind",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "link_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "link",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "movie_companies",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "company_id",
+    "type": "int"
+   },
+   {
+    "name": "company_type_id",
+    "type": "int"
+   },
+   {
+    "name": "note",
+    "type": "text"
+   }
+  ]
+ },
+ {
+  "table": "movie_info",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "info_type_id",
+    "type": "int"
+   },
+   {
+    "name": "info",
+    "type": "text"
+   },
+   {
+    "name": "note",
+    "type": "text"
+   }
+  ]
+ },
+ {
+  "table": "movie_info_idx",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "info_type_id",
+    "type": "int"
+   },
+   {
+    "name": "info",
+    "type": "text"
+   },
+   {
+    "name": "note",
+    "type": "text"
+   }
+  ]
+ },
+ {
+  "table": "movie_keyword",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "keyword_id",
+    "type": "int"
+   }
+  ]
+ },
+ {
+  "table": "movie_link",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "movie_id",
+    "type": "int"
+   },
+   {
+    "name": "linked_movie_id",
+    "type": "int"
+   },
+   {
+    "name": "link_type_id",
+    "type": "int"
+   }
+  ]
+ },
+ {
+  "table": "name",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "name",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_index",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_id",
+    "type": "int"
+   },
+   {
+    "name": "gender",
+    "type": "varchar"
+   },
+   {
+    "name": "name_pcode_cf",
+    "type": "varchar"
+   },
+   {
+    "name": "name_pcode_nf",
+    "type": "varchar"
+   },
+   {
+    "name": "surname_pcode",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "person_info",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "person_id",
+    "type": "int"
+   },
+   {
+    "name": "info_type_id",
+    "type": "int"
+   },
+   {
+    "name": "info",
+    "type": "text"
+   },
+   {
+    "name": "note",
+    "type": "text"
+   }
+  ]
+ },
+ {
+  "table": "role_type",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "role",
+    "type": "varchar"
+   }
+  ]
+ },
+ {
+  "table": "title",
+  "rows": 1000,
+  "columns": [
+   {
+    "name": "id",
+    "type": "int"
+   },
+   {
+    "name": "title",
+    "type": "varchar"
+   },
+   {
+    "name": "imdb_index",
+    "type": "varchar"
+   },
+   {
+    "name": "kind_id",
+    "type": "int"
+   },
+   {
+    "name": "production_year",
+    "type": "int"
+   },
+   {
+    "name": "imdb_id",
+    "type": "int"
+   },
+   {
+    "name": "phonetic_code",
+    "type": "varchar"
+   },
+   {
+    "name": "episode_of_id",
+    "type": "int"
+   },
+   {
+    "name": "season_nr",
+    "type": "int"
+   },
+   {
+    "name": "episode_nr",
+    "type": "int"
+   },
+   {
+    "name": "series_years",
+    "type": "varchar"
+   },
+   {
+    "name": "md5sum",
+    "type": "varchar"
+   }
+  ]
+ }
+]

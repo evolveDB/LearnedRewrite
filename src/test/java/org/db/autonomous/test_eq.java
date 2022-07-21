@@ -15,7 +15,18 @@ public class test_eq {
     //DB Config
     String path = System.getProperty("user.dir");
     JSONArray schemaJson = Utils.readJsonFile(path+"/src/main/schema.json");
-    Rewriter rewriter = new Rewriter(schemaJson);
+    //DB Config
+    String host = "123.56.63.105";
+    String port = "5432";
+    String user = "tpch";
+    String passwd= "hello_tpch";
+    String dbname = "tpch";
+    String dbDriver = "org.mysql.Driver";
+
+    DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+    //Rewriter rewriter = new Rewriter(schemaJson);
+    Rewriter rewriter = new Rewriter(schemaJson,host,port,user,passwd,dbname,dbDriver);
 
 
     //todo query formating
@@ -63,7 +74,7 @@ public class test_eq {
     sql2 = sql2.replace(";","");
     RelNode testRelNode = rewriter.SQL2RA(testSql);
     double origin_cost = rewriter.getCostRecordFromRelNode(testRelNode);
-    Node resultNode = new Node(testSql,testRelNode, (float) origin_cost,rewriter, (float) 0.1,null,"original query");
+    Node resultNode = new Node(testSql,testRelNode, (float) origin_cost,rewriter, (float) 0.1,null,"original query",db);
     Node res = resultNode.UTCSEARCH(5, resultNode,1);
     // System.out.println(RelOptUtil.toString(rewriter.removeOrderbyNCalc(testRelNode,null,0)));
     System.out.println("--------Equality Check: Two Relnodes: -------------");

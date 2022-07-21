@@ -23,12 +23,17 @@ import org.apache.calcite.tools.RelConversionException;
 import org.apache.calcite.tools.ValidationException;
 import org.apache.calcite.util.SourceStringReader;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.calcite.jdbc.CalciteConnection;
+import org.apache.calcite.adapter.jdbc.JdbcSchema;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import javax.sql.DataSource;
 
 import static org.apache.calcite.avatica.util.Casing.UNCHANGED;
 import static org.apache.calcite.avatica.util.Quoting.DOUBLE_QUOTE;
@@ -51,12 +56,28 @@ public class Rewriter {
   );
   public List<String> rule_list = Arrays.asList("rule_agg","rule_filter","rule_join","rule_project","rule_cal","rule_orderby","rule_union");
 
-  public  Rewriter(JSONArray schemaJson) throws SQLException, IOException {
+
+  // host,port,dbDriver,user,passwd,dbname,db
+  public  Rewriter(JSONArray schemaJson, String host, String port, String user, String password, String dbname, String DBDriver) throws SQLException, IOException {
+
     Vector<Pair<String, Vector<Pair<String, String>>>> schema_all = new Vector<>();
     SchemaPlus rootSchema = GenerateSchema.generate_schema(schemaJson, schema_all);
 
     SqlParser.Config parserConfig = SqlParser.config().withLex(Lex.MYSQL).withUnquotedCasing(UNCHANGED).withCaseSensitive(false).withQuoting(DOUBLE_QUOTE);
     FrameworkConfig config = Frameworks.newConfigBuilder().parserConfig(parserConfig).defaultSchema(rootSchema).build();
+
+    Connection conn = DriverManager.getConnection("jdbc:calcite:");
+    CalciteConnection calcite_conn = conn.unwrap(CalciteConnection.class);
+    //SchemaPlus rootSchema = calcite_conn.getRootSchema();
+    DataSource data_source = JdbcSchema.dataSource("jdbc:mysql://"+host+':'+port+'/',
+            DBDriver, user,password);
+    rootSchema.add(dbname, JdbcSchema.create(rootSchema,dbname, data_source, null, null));
+
+    System.out.println("----------Schema----------");
+    System.out.println(rootSchema.getTableNames());
+    //SqlParser.Config parserConfig = SqlParser.config().withLex(Lex.MYSQL).withUnquotedCasing(UNCHANGED).withCaseSensitive(false).withQuoting(DOUBLE_QUOTE);
+    //FrameworkConfig config = Frameworks.newConfigBuilder().parserConfig(parserConfig).defaultSchema(rootSchema).build();
+
     this.planner = Frameworks.getPlanner(config);
     this.schema = schema_all;
     this.dialect = MysqlSqlDialect.DEFAULT;

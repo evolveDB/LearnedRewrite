@@ -16,7 +16,7 @@ import argparse
 import tempfile
 from concurrent.futures.thread import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
-from DBUtils.PooledDB import PooledDB
+from dbutils.pooled_db import PooledDB
 import pandas as pd
 
 # from DBUtils.PooledDB import PooledDB
@@ -38,13 +38,13 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-def get_pooled_database(host, user, password, database, max_connections=20, port=3306):
+def get_pooled_database(host, user, password, database, port=3306, max_connections=20):
     pool = PooledDB(
         pymysql,
         max_connections,
         host=host,
         user=user,
-        port=3306,
+        port=port,
         passwd=password,
         db=database,
         use_unicode=True)
@@ -169,13 +169,13 @@ def query_performance_benchmark(pooled_db, sql_query_input, threads=1):
     return benchmark_result_list
 
 
-def rewrite_performance_benchmark(pooled_db, origin_sql_query_input_file, result_output_file, threads=1):
+def rewrite_performance_benchmark(pooled_db, origin_sql_query_input_file, result_output_file, threads, args):
     start_time = time.time()
     total_origin_query_cost = 0.0
     total_rewrite_query_cost = 0.0
     origin_input_ext = os.path.splitext(os.path.abspath(origin_sql_query_input_file))
     rewrite_output_file = origin_input_ext[0] + "_rewrite" + origin_input_ext[1]
-    rewrite(pooled_db, origin_sql_query_input_file, rewrite_output_file)
+    rewrite(pooled_db, origin_sql_query_input_file, rewrite_output_file, args)
     with open(origin_sql_query_input_file) as origin_query_input, open(
             rewrite_output_file) as rewrite_query_input, pd.ExcelWriter(result_output_file,
                                                                         engine="openpyxl") as excel_writer:
@@ -207,15 +207,18 @@ def error_callback(value):
 
 def multi_thread_query_function(pooled_db, sql, idx, total):
     try:
-        # start_time = time.time()
+        start_time = time.time()
         conn = pooled_db.connection()
         cursor = conn.cursor()
         cursor.execute("explain format=json %s" % sql)
-        fetched_row = cursor.fetchone()
-        explain_json = json.loads(fetched_row[0])
-        query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
-        # end_time = time.time()
+        # cursor.execute("%s" % sql)
+        #fetched_row = cursor.fetchone()
+        #explain_json = json.loads(fetched_row[0])
+        #query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
+
+        end_time = time.time()
         # time_used = end_time - start_time
+        query_cost = end_time - start_time
         logger.debug("idx:%d, total:%d, query cost:%.2f, sql:%s" % (idx, total, query_cost, sql))
         cursor.close()
         conn.close()
@@ -260,7 +263,7 @@ def monitor_thread_function(pooled_db):
     conn.close()
 
 
-def rewrite(pooled_db, input_sql_file, output_sql_file):
+def rewrite(pooled_db, input_sql_file, output_sql_file, args):
     conn = pooled_db.connection()
     db_schema_list = generate_sql_rewrite_schema(conn)
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_schema_output:
@@ -270,15 +273,15 @@ def rewrite(pooled_db, input_sql_file, output_sql_file):
         input_sql_abs_path = os.path.abspath(input_sql_file)
         output_sql_abs_path = os.path.abspath(output_sql_file)
         if os.path.exists("target"):
-            command = 'cd target && java -jar ai4db.jar %s %s %s' % (
-                temp_schema_output.name, input_sql_abs_path, output_sql_abs_path)
+            command = 'cd target && java -jar ai4db.jar %s %s %s %s %s %s %s %s' % (
+                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password, input_sql_abs_path, output_sql_abs_path)
         else:
-            command = 'java -jar ai4db.jar %s %s %s' % (temp_schema_output.name, input_sql_file, output_sql_file)
+            command = 'java -jar ai4db.jar %s %s %s %s %s %s %s %s %s %s %s' % (
+                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password, input_sql_abs_path, output_sql_abs_path)
         logger.debug("rewrite command:%s" % command)
         os.system(command)
         os.remove(temp_schema_output.name)
     conn.close()
-
 
 def setup_job_database(conn, schema_sql, index_sql, csv_files_dir):
     with open(schema_sql) as schema_sql_input, open(index_sql) as index_sql_input:
@@ -347,12 +350,15 @@ if __name__ == "__main__":
     parser.add_argument('output_file', metavar='output_file', help='set output file')
     # parser.print_help(sys.stdout)
     args = parser.parse_args()
+
+    logging.getLogger().setLevel(logging.INFO)
+
     if args.action == 'rewrite':
-        pooled_db = get_pooled_database(args.host, args.user, args.password, args.database)
-        rewrite(pooled_db, args.input_file, args.output_file)
+        pooled_db = get_pooled_database(args.host, args.user, args.password, args.database, args.port)
+        rewrite(pooled_db, args.input_file, args.output_file, args)
     elif args.action == "benchmark":
-        pooled_db = get_pooled_database(args.host, args.user, args.password, args.database)
-        rewrite_performance_benchmark(pooled_db, args.input_file, args.output_file, args.thread)
+        pooled_db = get_pooled_database(args.host, args.user, args.password, args.database, args.port)
+        rewrite_performance_benchmark(pooled_db, args.input_file, args.output_file, args.thread, args)
         # query_performance_benchmark(pooled_db, args.input_file, args.output_file, args.thread)
     else:
         parser.print_help(sys.stderr)

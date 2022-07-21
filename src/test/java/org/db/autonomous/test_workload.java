@@ -13,18 +13,34 @@ import java.util.List;
 public class test_workload {
     public static void main(String[] args) throws Exception {
 
-        //DB Config
+        //Config
         String path = System.getProperty("user.dir");
-        JSONArray schemaJson = Utils.readJsonFile(path+"/src/main/schema.json");
-        Rewriter rewriter = new Rewriter(schemaJson);
+        //InputStream inputStream = Utils.class.getResourceAsStream("/schema.json");
+        JSONArray schemaJson = Utils.readJsonFile("data/job/imdb_schema.json");
 
-        String[] workload = Utils.readWorkloadFromFile(path+"/src/main/tpch10000.txt");
+        //DB Config
+        String host = "166.111.121.62";
+        String port = "3306";
+        String user = "feng";
+        String passwd= "db10204";
+        String dbname = "imdbload";
+        String dbDriver = "com.mysql.cj.jdbc.Driver";
+
+        DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+        //Rewriter rewriter = new Rewriter(schemaJson);
+        Rewriter rewriter = new Rewriter(schemaJson,host,port,user,passwd,dbname,dbDriver);
+
+        // Utils.readJsonFile("data/job/imdb_schema.json");
+        String[] workload = Utils.readWorkloadFromFile("data/job/origin.sql");
         System.out.println(workload.length);
         List addedWorkload = new ArrayList();
         JSONArray rewrittenList = new JSONArray();
         List unRewrittenList = new ArrayList();
         List failureList = new ArrayList();
 
+
+        JSONObject dataJson2 = new JSONObject();
 
         for (int i = 0; i < workload.length; i++) {
             String sql = workload[i];
@@ -34,24 +50,37 @@ public class test_workload {
             System.out.println("\u001B[1;31m" + "-------------------------------------------正在改写："+ i + "\u001B[0m");
             try {
                 RelNode originRelNode = rewriter.SQL2RA(sql);
-                double origin_cost = rewriter.getCostRecordFromRelNode(originRelNode);
-                Node resultNode = new Node(sql, originRelNode, (float) origin_cost, rewriter, (float) 0.1,null,"original query");
-                Node res = resultNode.UTCSEARCH(20, resultNode,1);
+                double origin_cost = db.getCost(sql);
+                Node resultNode = new Node(sql, originRelNode, (float) origin_cost, rewriter, (float) 0.1,null,"original query",db);
+                Node res = resultNode.UTCSEARCH(10, resultNode,1);
                 String rewritten_sql = res.state;
                 if (!rewritten_sql.equalsIgnoreCase(sql)) {
                     JSONObject dataJson = new JSONObject();
+
+                    float new_cost = db.getCost(res.state);
+
+                    if (new_cost < origin_cost){
+                        System.out.println("rewrite ratio: " + (origin_cost-new_cost)/origin_cost);
+                    }
+
+                    dataJson2.put("rewrite ratio", (origin_cost-new_cost)/origin_cost);
                     dataJson.put("origin_cost", String.format("%.4f",origin_cost));
                     dataJson.put("origin_sql", sql);
-                    dataJson.put("rewritten_cost", String.format("%.4f",rewriter.getCostRecordFromRelNode(res.state_rel)));
+                    dataJson.put("rewritten_cost", String.format("%.4f",db.getCost(res.state)));
                     dataJson.put("rewritten_sql", res.state);
                     // equivalence check by SPES.
-                    JsonObject eqres = verifyrelnode.verifyrelnode(originRelNode,res.state_rel, sql, res.state);
+                    //JsonObject eqres = verifyrelnode.verifyrelnode(originRelNode,res.state_rel, sql, res.state);
                     // eqres e.g.: {"decision":"true"/"false"/"unknown","plan1":"...", "plan2":"..."}
-                    dataJson.put("equivalence_check",eqres);
+                    //dataJson.put("equivalence_check",eqres);
                     rewrittenList.add(dataJson);
-                }else {
+                } else {
                     unRewrittenList.add(sql);
                 }
+
+                if (i==61){
+                    Utils.writeContentStringToLocalFile(dataJson2.toJSONString(), "data/job/job_rewritten_result_ratio.txt");
+                }
+
             } catch (Exception error) {
                 error.printStackTrace();
                 failureList.add(sql);
@@ -63,8 +92,10 @@ public class test_workload {
         resultJson.put("unRewritten", unRewrittenList);
         resultJson.put("failure", failureList);
 
-        System.out.println(resultJson.toJSONString());
-        Utils.writeContentStringToLocalFile(resultJson.toJSONString(), path+"/src/main/workload_rewritten_result.txt");
+        //System.out.println(resultJson.toJSONString());
+        Utils.writeContentStringToLocalFile(resultJson.toJSONString(), "data/job/workload_rewritten_result_test.txt");
+
+        Utils.writeContentStringToLocalFile(dataJson2.toJSONString(), "data/job/job_rewritten_result_ratio.txt");
 
 //        //todo query formating
 //        String testSql = "SELECT * FROM (SELECT A1.*,ROWNUM RN FROM (SELECT T1.*, T4.AREA_NAME, T2.USER_NAME CONTACT_STAFF_NAME, T5.USER_NAME CLOSE_PERSON_NAME, T3.CODE_NAME EXEC_STATE_DESC, T1.CLOSE_DATE CLOSE_DATE_DESC, CASE WHEN T1.HANG_UP_SMS IS NOT NULL THEN '1' ELSE '0' END HANG_UP_SMS_STATE, T6.MKT_TIGGER_TYPE FROM view1 T1 LEFT JOIN view4 T4 ON T1.AREA_NO = T4.AREA_ID_JT LEFT JOIN view3 T2 ON T1.CONTACT_STAFF = T2.USER_ID LEFT JOIN view3 T5 ON T1.CLOSE_PERSON = T5.USER_ID LEFT JOIN view2 T3 ON T1.EXEC_STATE = T3.CODE_ID AND T1.STATUS_CODE = T3.PREV_CODE_ID AND T3.CODE_TYPE='CONTRACT_FEEDBACK' LEFT JOIN view5 T6 ON T1.MKT_CAMPAIGN_ID = T6.MKT_CAMPAIGN_ID WHERE 1=1 AND T1.CLOSE_PERSON = 12 AND T1.CLOSE_DATE >= '2021-01-18' AND T1.CLOSE_DATE <= '2022-02-18' AND T1.EXEC_STATE IN (1001,7000,1000,5000) ORDER BY T1.hang_up_sms DESC )AS A1 WHERE ROWNUM <= 30000 ) AS A2 WHERE RN > 1;";

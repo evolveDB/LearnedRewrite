@@ -26,7 +26,21 @@ public class test_single_rule {
     public static void main(String[] args) throws Exception{
         String path = System.getProperty("user.dir");
         JSONArray schemaJson = Utils.readJsonFile(path+"/src/main/schema.json");
-        Rewriter rewriter = new Rewriter(schemaJson);
+
+        //DB Config
+        String host = "123.56.63.105";
+        String port = "5432";
+        String user = "tpch";
+        String passwd= "hello_tpch";
+        String dbname = "tpch";
+        String dbDriver = "org.mysql.Driver";
+
+        DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+        // Rewriter rewriter = new Rewriter(schemaJson);
+        Rewriter rewriter = new Rewriter(schemaJson,host,port,user,passwd,dbname,dbDriver);
+
+        // Rewriter rewriter = new Rewriter(schemaJson);
         String testSql;
 
         testSql = "select l_discount,count (distinct l_orderkey), sum(distinct l_tax)\n" +

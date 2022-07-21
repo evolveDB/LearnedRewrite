@@ -80,10 +80,24 @@ public class server {
                     }else {
                         jobj = JSON.parseArray(schemaJson);
                     }
-                    Rewriter rewriter = new Rewriter(jobj);
+
+                    //DB Config
+                    String host = "123.56.63.105";
+                    String port = "5432";
+                    String user = "tpch";
+                    String passwd= "hello_tpch";
+                    String dbname = "tpch";
+                    String dbDriver = "org.mysql.Driver";
+
+                    DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+                    // Rewriter rewriter = new Rewriter(schemaJson);
+                    Rewriter rewriter = new Rewriter(jobj,host,port,user,passwd,dbname,dbDriver);
+                    // Rewriter rewriter = new Rewriter(jobj);
+
                     RelNode relNode = rewriter.SQL2RA(sql);
                     double origin_cost = rewriter.getCostRecordFromRelNode(relNode);
-                    Node resultNode = new Node(sql, relNode, (float) origin_cost,rewriter, (float) 0.1,null,"original query");
+                    Node resultNode = new Node(sql, relNode, (float) origin_cost,rewriter, (float) 0.1,null,"original query",db);
                     Node res = resultNode.UTCSEARCH(20, resultNode,1);
                     JSONObject dataJson = new JSONObject();
                     JSONObject treeJson = Utils.generate_json(resultNode);
@@ -159,7 +173,22 @@ public class server {
                     }else {
                         jobj = JSON.parseArray(schemaJson);
                     }
-                    Rewriter rewriter = new Rewriter(jobj);
+
+
+                    //DB Config
+                    String host = "123.56.63.105";
+                    String port = "5432";
+                    String user = "tpch";
+                    String passwd= "hello_tpch";
+                    String dbname = "tpch";
+                    String dbDriver = "org.mysql.Driver";
+
+                    DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+                    // Rewriter rewriter = new Rewriter(schemaJson);
+                    Rewriter rewriter = new Rewriter(jobj,host,port,user,passwd,dbname,dbDriver);
+                    // Rewriter rewriter = new Rewriter(jobj);
+
                     RelNode relNode = rewriter.SQL2RA(sql);
                     JSONObject dataJson = new JSONObject();
                     dataJson.put("res_node", RelOptUtil.toString(relNode));
@@ -204,7 +233,21 @@ public class server {
                     }else {
                         jobj = JSON.parseArray(schemaJson);
                     }
-                    Rewriter rewriter = new Rewriter(jobj);
+
+                    //DB Config
+                    String host = "123.56.63.105";
+                    String port = "5432";
+                    String user = "tpch";
+                    String passwd= "hello_tpch";
+                    String dbname = "tpch";
+                    String dbDriver = "org.mysql.Driver";
+
+                    DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
+
+                    // Rewriter rewriter = new Rewriter(schemaJson);
+                    Rewriter rewriter = new Rewriter(jobj,host,port,user,passwd,dbname,dbDriver);
+                    // Rewriter rewriter = new Rewriter(jobj);
+
                     RelNode relNode1 = rewriter.SQL2RA(sql1);
                     RelNode relNode2 = rewriter.SQL2RA(sql2);
 

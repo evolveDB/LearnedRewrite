@@ -1,7 +1,6 @@
 
 # How to do sql rewrite and performance test
 
-
 ## Dependency
 * Java runtime environment
 * Python: pymysql、DBUtils、apscheduler、pandas, install them use pip or conda

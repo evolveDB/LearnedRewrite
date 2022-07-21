@@ -20,6 +20,7 @@ public class Node {
   int selected = 0;
   Map activatedRules = new HashMap();
   String name= "";
+  DBConn db;
 
 
   public Node(String sql,
@@ -28,7 +29,8 @@ public class Node {
               Rewriter rewriter,
               float gamma,
               Node parent,
-              String name
+              String name,
+              DBConn db
               ) throws Exception {
     this.state = sql;
     this.state_rel = state_rel;
@@ -38,11 +40,11 @@ public class Node {
     this.origin_cost = origin_cost;
     this.gamma = gamma;
     this.name = name;
-
+    this.db = db;
   }
   public void add_child(String csql,RelNode relNode,float origin_cost,Rewriter rewriter,Map activatedRules,String name)
           throws Exception {
-    Node child = new Node(csql,relNode,origin_cost,rewriter,this.gamma,parent,name);
+    Node child = new Node(csql,relNode,origin_cost,rewriter,this.gamma,parent,name, this.db);
     child.activatedRules = activatedRules;
     this.children.add(child);
   }
@@ -65,18 +67,27 @@ public class Node {
     for(String rule: this.rewriter.rule2class.keySet()) {
       if (rule_check(this.state_rel, rewriter.rule2class.get(rule))){
 
-        System.out.println("\u001B[35m" + rule+ " Module is selected " + "\u001B[0m");
+        //System.out.println("\u001B[35m" + rule+ " Module is selected " + "\u001B[0m");
         List res = this.rewriter.singleRewrite(this.state_rel, rule);
         Map activatedRules = new HashMap();
         String csql = (String) res.get(1);
-        double new_cost = this.rewriter.getCostRecordFromRelNode((RelNode) res.get(0));
+        //double new_cost = this.rewriter.getCostRecordFromRelNode((RelNode) res.get(0));
+        //System.out.println(csql);
+
+        // check whether
+
+        // add hint
+        csql = "/*+ JOIN_PREFIX(kind_type, link_type, comp_cast_type, role_type, company_type, info_type, movie_link, complete_cast, keyword, company_name, aka_title, movie_info_idx, aka_name, movie_companies, movie_keyword, char_name, title, name, person_info, movie_info, cast_info) */ " + csql;
+
+        double new_cost = this.db.getCost(csql);
+
         if (new_cost == -1){
           return;
         }
-        if (new_cost<=this.origin_cost){
+        if (new_cost<this.origin_cost){
           //todo rule selection
           //self.used_rule_num = self.used_rule_num + self.rewriter.rulenums[self.rewriter.related_rule_list[i]]
-          System.out.println("new node added..");
+          // System.out.println("new node added..");
           this.add_child(csql, (RelNode) res.get(0),this.origin_cost,this.rewriter,activatedRules,rule);
         }
       }
@@ -100,6 +111,8 @@ public class Node {
       Node child = (Node) root.children.get(i);
       child.parent = root;
     }
+    System.out.println("child number: "+root.children.size());
+
     List front_list = new ArrayList();
     for (int i = 0;i<buget;i++){
       //todo parallel search
@@ -119,10 +132,10 @@ public class Node {
           Node c = (Node) front.children.get(k);
           c.parent = front;
         }
+
         root.node_num += front.children.size();
         float reward = FINDBESTREWARD(front);
         BACKUP(front,reward);
-
       }
     }
 
