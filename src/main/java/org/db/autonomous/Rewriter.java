@@ -15,6 +15,7 @@ import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
+import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.tools.FrameworkConfig;
 import org.apache.calcite.tools.Frameworks;
 import org.apache.calcite.tools.Planner;
@@ -25,6 +26,7 @@ import org.apache.calcite.util.SourceStringReader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.adapter.jdbc.JdbcSchema;
+import org.db.autonomous.trait.SimpleTable;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -46,6 +48,9 @@ public class Rewriter {
   SqlDialect dialect;
   public HepOpt optimizer;
 
+  public SortedMap<String, Integer> rows_tables;
+
+
   public Map<String,Class> rule2class = Map.of("rule_filter", Filter.class,
       "rule_join", Join.class,
       "rule_agg", Aggregate.class,
@@ -63,6 +68,23 @@ public class Rewriter {
     Vector<Pair<String, Vector<Pair<String, String>>>> schema_all = new Vector<>();
     SchemaPlus rootSchema = GenerateSchema.generate_schema(schemaJson, schema_all);
 
+    HashMap<String, Integer> tmp_tables = new HashMap<String, Integer>();
+    ValueComparator bvc = new ValueComparator(tmp_tables);
+    SortedMap<String, Integer> rows_tables
+            = new TreeMap<String, Integer>(bvc);
+
+    for (int i = 0; i < schemaJson.size(); i++) {
+      JSONObject object = schemaJson.getJSONObject(i);
+      SimpleTable.Builder temTable = SimpleTable.newBuilder(object.getString("table"));
+
+      temTable.withRowCount(object.getInteger("rows"));
+      //System.out.println(temTable.RowCount());
+
+      tmp_tables.put((String) object.getString("table"), (int) temTable.RowCount());
+    }
+    rows_tables.putAll(tmp_tables);
+
+
     SqlParser.Config parserConfig = SqlParser.config().withLex(Lex.MYSQL).withUnquotedCasing(UNCHANGED).withCaseSensitive(false).withQuoting(DOUBLE_QUOTE);
     FrameworkConfig config = Frameworks.newConfigBuilder().parserConfig(parserConfig).defaultSchema(rootSchema).build();
 
@@ -78,10 +100,12 @@ public class Rewriter {
     //SqlParser.Config parserConfig = SqlParser.config().withLex(Lex.MYSQL).withUnquotedCasing(UNCHANGED).withCaseSensitive(false).withQuoting(DOUBLE_QUOTE);
     //FrameworkConfig config = Frameworks.newConfigBuilder().parserConfig(parserConfig).defaultSchema(rootSchema).build();
 
+
     this.planner = Frameworks.getPlanner(config);
     this.schema = schema_all;
     this.dialect = MysqlSqlDialect.DEFAULT;
     this.optimizer = new HepOpt();
+    this.rows_tables = rows_tables;
   }
 
   public RelOptCost getCostFromRelNode(RelNode rel_node) throws Exception {

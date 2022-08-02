@@ -1,7 +1,7 @@
 [
  {
   "table": "aka_name",
-  "rows": 1000,
+  "rows": 2000,
   "columns": [
    {
     "name": "id",
@@ -39,7 +39,7 @@
  },
  {
   "table": "aka_title",
-  "rows": 1000,
+  "rows": 1500,
   "columns": [
    {
     "name": "id",
@@ -93,7 +93,7 @@
  },
  {
   "table": "cast_info",
-  "rows": 1000,
+  "rows": 900,
   "columns": [
    {
     "name": "id",

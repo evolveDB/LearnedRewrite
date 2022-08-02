@@ -9,12 +9,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.db.autonomous.trait.SimpleTable;
 
 import java.util.Vector;
-
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Comparator;
 
 public class GenerateSchema {
     public static SchemaPlus generate_schema(JSONArray json, Vector<Pair<String, Vector<Pair<String, String>>>>schema_all) {
         try {
             SchemaPlus rootSchema = Frameworks.createRootSchema(true);
+
             for (int i = 0; i < json.size(); i++) {
                 JSONObject object = json.getJSONObject(i);
                 SimpleTable.Builder temTable = SimpleTable.newBuilder(object.getString("table"));
@@ -46,15 +51,38 @@ public class GenerateSchema {
                     SqlTypeName typeName = SqlTypeName.get(type.toUpperCase());
                     temTable.addField((String) subJson.get("name"), typeName);
                 }
+
                 temTable.withRowCount(object.getInteger("rows"));
+                //System.out.println(temTable.RowCount());
+
                 Pair<String, Vector<Pair<String, String>>> v = temTable.tableDiscribe();
                 schema_all.add(v);
                 rootSchema.add(object.getString("table"), temTable.build());
             }
+
             return rootSchema;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+}
+
+
+class ValueComparator implements Comparator<String> {
+    Map<String, Integer> base;
+
+    public ValueComparator(Map<String, Integer> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with
+    // equals.
+    public int compare(String a, String b) {
+        if (base.get(a) <= base.get(b)) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
     }
 }

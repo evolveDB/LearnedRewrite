@@ -21,10 +21,11 @@ public class test {
         String dbname = "imdbload";
         String dbDriver = "com.mysql.cj.jdbc.Driver";
         // org.db.autonomous
-        DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
 
         //Rewriter rewriter = new Rewriter(schemaJson);
         Rewriter rewriter = new Rewriter(schemaJson,host,port,user,passwd,dbname,dbDriver);
+
+        DBConn db = new DBConn(host,port,user,passwd,dbname,dbDriver);
 
         //todo query formating
         // String testSql = "select * from orders where (o_orderpriority + o_orderkey > 10 and o_orderkey < 100+2) and (1999 + 1 < o_totalprice and o_orderpriority like 'abcd')";

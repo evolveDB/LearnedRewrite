@@ -4,6 +4,8 @@ import org.apache.calcite.rel.RelNode;
 
 import java.util.*;
 
+import java.util.SortedMap;
+
 public class Node {
   int visits = 1;
   public String state;
@@ -77,7 +79,22 @@ public class Node {
         // check whether
 
         // add hint
-        csql = "/*+ JOIN_PREFIX(kind_type, link_type, comp_cast_type, role_type, company_type, info_type, movie_link, complete_cast, keyword, company_name, aka_title, movie_info_idx, aka_name, movie_companies, movie_keyword, char_name, title, name, person_info, movie_info, cast_info) */ " + csql;
+        // csql = "/*+ JOIN_PREFIX(kind_type, link_type, comp_cast_type, role_type, company_type, info_type, movie_link, complete_cast, keyword, company_name, aka_title, movie_info_idx, aka_name, movie_companies, movie_keyword, char_name, title, name, person_info, movie_info, cast_info) */ " + csql;
+        String sql = "/*+ JOIN_PREFIX(";
+
+        Integer cnt = 0;
+        for (String name : this.rewriter.rows_tables.keySet()){
+          cnt = cnt + 1;
+
+          if (cnt != this.rewriter.rows_tables.size()){
+            sql = sql + name + ", ";
+          }
+          else
+            sql = sql + name;
+        }
+
+        csql = sql + ") */ " + csql;
+
 
         double new_cost = this.db.getCost(csql);
 

@@ -105,6 +105,11 @@ public class SimpleTable extends AbstractTable implements ScannableTable {
             return this;
         }
 
+        public long RowCount() {
+
+            return this.rowCount;
+        }
+
         public SimpleTable build() {
             if (fieldNames.isEmpty()) {
                 throw new IllegalStateException("Table must have at least one field");
