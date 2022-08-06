@@ -16,10 +16,14 @@ import argparse
 import tempfile
 from concurrent.futures.thread import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
-from dbutils.pooled_db import PooledDB
+# from dbutils.pooled_db import PooledDB
 import pandas as pd
+import platform
 
-# from DBUtils.PooledDB import PooledDB
+if platform.system().lower() == 'windows':
+    from DBUtils.PooledDB import PooledDB
+else:
+    from dbutils.pooled_db import PooledDB
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.DEBUG)
@@ -210,11 +214,11 @@ def multi_thread_query_function(pooled_db, sql, idx, total):
         start_time = time.time()
         conn = pooled_db.connection()
         cursor = conn.cursor()
-        cursor.execute("explain format=json %s" % sql)
-        # cursor.execute("%s" % sql)
-        #fetched_row = cursor.fetchone()
-        #explain_json = json.loads(fetched_row[0])
-        #query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
+        # cursor.execute("explain format=json %s" % sql)
+        cursor.execute("%s" % sql)
+        # fetched_row = cursor.fetchone()
+        # explain_json = json.loads(fetched_row[0])
+        # query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
 
         end_time = time.time()
         # time_used = end_time - start_time
@@ -274,14 +278,17 @@ def rewrite(pooled_db, input_sql_file, output_sql_file, args):
         output_sql_abs_path = os.path.abspath(output_sql_file)
         if os.path.exists("target"):
             command = 'cd target && java -jar ai4db.jar %s %s %s %s %s %s %s %s' % (
-                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password, input_sql_abs_path, output_sql_abs_path)
+                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password,
+                input_sql_abs_path, output_sql_abs_path)
         else:
             command = 'java -jar ai4db.jar %s %s %s %s %s %s %s %s %s %s %s' % (
-                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password, input_sql_abs_path, output_sql_abs_path)
+                temp_schema_output.name, args.database, args.host, args.port, args.user, args.password,
+                input_sql_abs_path, output_sql_abs_path)
         logger.debug("rewrite command:%s" % command)
         os.system(command)
         os.remove(temp_schema_output.name)
     conn.close()
+
 
 def setup_job_database(conn, schema_sql, index_sql, csv_files_dir):
     with open(schema_sql) as schema_sql_input, open(index_sql) as index_sql_input:
@@ -334,14 +341,14 @@ if __name__ == "__main__":
                         help='set mysql host')
     parser.add_argument('--port', dest='port', default=3306,
                         help='set mysql port')
-    parser.add_argument('-u', '--user', dest='user',default='root',
+    parser.add_argument('-u', '--user', dest='user', default='root',
                         help='set mysql user')
-    parser.add_argument('-p', '--password', dest='password',default='root',
+    parser.add_argument('-p', '--password', dest='password', default='root',
                         help='set mysql password')
     parser.add_argument('-D', '--database', dest='database',
                         help='set mysql database')
 
-    parser.add_argument('-t', '--thread', dest='thread', type=int, default=os.cpu_count()*2,
+    parser.add_argument('-t', '--thread', dest='thread', type=int, default=os.cpu_count() * 2,
                         help='set concurrent threads')
     parser.add_argument('-a', '--action', dest='action',
                         help='set action, current available actions: rewrite/benchmark')

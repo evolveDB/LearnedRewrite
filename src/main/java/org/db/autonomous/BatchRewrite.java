@@ -65,8 +65,8 @@ public class BatchRewrite {
             double rewrittenCost = db.getCost(res.state);
             long end = System.currentTimeMillis();
             LOGGER.debug("time used(s):{}, index:{}, origin:{}, cost:{}, rewrite:{}, cost:{}",(end-start)/1000.0,idx, originSql, originCost, rewrittenSql,rewrittenCost);
-            //writer.write(rewrittenSql + ";\n");
-            writer.write("time used(s):"+(end-start)/1000.0+", index: "+idx+", origin_cost: "+originCost+", rewrite_cost: "+rewrittenCost+", origin: "+originSql+", rewrite: "+rewrittenSql+"\n");
+            writer.write(rewrittenSql + ";\n");
+//            writer.write("time used(s):"+(end-start)/1000.0+", index: "+idx+", origin_cost: "+originCost+", rewrite_cost: "+rewrittenCost+", origin: "+originSql+", rewrite: "+rewrittenSql+"\n");
             idx++;
         }
 
