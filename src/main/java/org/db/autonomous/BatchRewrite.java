@@ -57,6 +57,7 @@ public class BatchRewrite {
 
             // double originCost = rewriter.getCostRecordFromRelNode(originRelNode);
             double originCost = db.getCost(originSql);
+            // guided by cost values
 
             Node rewrittenNode = new Node(originSql, originRelNode, (float) originCost, rewriter, (float) 0.1, null, "original_query", db);
             Node res = rewrittenNode.UTCSEARCH(50, rewrittenNode, 1);

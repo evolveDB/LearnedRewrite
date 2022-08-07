@@ -12,6 +12,7 @@ public class Node {
   public RelNode state_rel;
   public float reward;
   Rewriter rewriter;
+
   public List children = new ArrayList();
   Node parent;
   List rewrite_sequence = new ArrayList();
@@ -23,7 +24,6 @@ public class Node {
   Map activatedRules = new HashMap();
   String name= "";
   DBConn db;
-
 
   public Node(String sql,
               RelNode state_rel,
@@ -99,9 +99,9 @@ public class Node {
         double new_cost = this.db.getCost(csql);
 
         if (new_cost == -1){
-          return;
+          return ;
         }
-        if (new_cost<this.origin_cost){
+        if (new_cost<=this.origin_cost){
           //todo rule selection
           //self.used_rule_num = self.used_rule_num + self.rewriter.rulenums[self.rewriter.related_rule_list[i]]
           // System.out.println("new node added..");
@@ -212,28 +212,47 @@ public class Node {
   }
 
   private Node FINDBESTNODE(Node best_node){
-    while (!best_node.is_terminal()){
-      float bestscore = ((Node) best_node.children.get(0)).reward;
-      List bestchildren = new ArrayList();
-      bestchildren.add(best_node.children.get(0));
-      for (int i = 0;i< best_node.children.size();i++){
-        Node c = (Node) best_node.children.get(i);
-        float score = c.reward;
-        if (score > bestscore){
-          bestchildren.clear();
-          bestchildren.add(c);
-          bestscore = score;
-        }
-        else if (score == bestscore){
-          bestchildren.add(c);
-        }
+    if (best_node.is_terminal()){
+      String origin_sql = best_node.state;
+      String sql = "/*+ JOIN_PREFIX(";
 
+      Integer cnt = 0;
+      for (String name : best_node.rewriter.rows_tables.keySet()){
+        cnt = cnt + 1;
+
+        if (cnt != best_node.rewriter.rows_tables.size()){
+          sql = sql + name + ", ";
+        }
+        else
+          sql = sql + name;
       }
-      Random random = new Random();
-      int i = random.nextInt(bestchildren.size());
-      best_node = (Node) bestchildren.get(i);
-
+      String hint_sql = sql + ") */ " + origin_sql;
+      best_node.state = hint_sql;
     }
+    else{
+      while (!best_node.is_terminal()){
+        float bestscore = ((Node) best_node.children.get(0)).reward;
+        List bestchildren = new ArrayList();
+        bestchildren.add(best_node.children.get(0));
+        for (int i = 0;i< best_node.children.size();i++){
+          Node c = (Node) best_node.children.get(i);
+          float score = c.reward;
+          if (score > bestscore){
+            bestchildren.clear();
+            bestchildren.add(c);
+            bestscore = score;
+          }
+          else if (score == bestscore){
+            bestchildren.add(c);
+          }
+
+        }
+        Random random = new Random();
+        int i = random.nextInt(bestchildren.size());
+        best_node = (Node) bestchildren.get(i);
+      }
+    }
+
     return best_node;
   }
 }

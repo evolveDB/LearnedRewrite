@@ -72,7 +72,7 @@ def get_db_tables(conn):
     return table_list
 
 
-def get_table_schema(conn, table):
+def get_table_columns(conn, table):
     # use desc
     cursor = conn.cursor()
     # Execute DESCRIBE statement
@@ -87,12 +87,25 @@ def get_table_schema(conn, table):
     return schema_list
 
 
+def get_table_rows(conn, table):
+    # use desc
+    cursor = conn.cursor()
+    # Execute DESCRIBE statement
+    cursor.execute("select count(*) from " + table)
+
+    # Fetch and print the meta-data of the table
+    fetched_result = cursor.fetchall()
+
+    return fetched_result[0][0]
+
+
 def generate_sql_rewrite_schema(conn):
     db_schema_list = []
     table_list = get_db_tables(conn)
     for table_name in table_list:
-        table_schema_list = get_table_schema(conn, table_name)
-        db_schema_list.append({'table': table_name, 'rows': 1000, 'columns': table_schema_list})
+        table_column_list = get_table_columns(conn, table_name)
+        table_rows = get_table_rows(conn, table_name)
+        db_schema_list.append({'table': table_name, 'rows': table_rows, 'columns': table_column_list})
     return db_schema_list
 
 
@@ -167,7 +180,7 @@ def query_performance_benchmark(pooled_db, sql_query_input, threads=1):
             total_query_cost += query_cost
             # sql, time_used = res.get()
         # result_output.write("total:%d, total time used:%.3f" % (len(async_future_list), total_query_cost))
-        logger.info("input file:%s, total:%d, total query_cost:%.3f" % (
+        logger.info("input file:%s, total:%d, total query_latency:%.3f" % (
             sql_query_input.name, len(async_future_list), total_query_cost))
     # scheduler.shutdown(wait=False)
     return benchmark_result_list
@@ -183,19 +196,23 @@ def rewrite_performance_benchmark(pooled_db, origin_sql_query_input_file, result
     with open(origin_sql_query_input_file) as origin_query_input, open(
             rewrite_output_file) as rewrite_query_input, pd.ExcelWriter(result_output_file,
                                                                         engine="openpyxl") as excel_writer:
+
+
         origin_query_benchmark_list = query_performance_benchmark(pooled_db, origin_query_input, threads)
         rewrite_query_benchmark_list = query_performance_benchmark(pooled_db, rewrite_query_input, threads)
+
         # os.remove(temp_rewrite_output.name)
-        columns = ['origin cost', 'rewrite cost', 'improvement', 'origin query', 'rewrite query']
+        columns = ['origin latency', 'optimized latency', 'improvement', 'origin query', 'rewrite query']
         data_rows = []
         for i in range(len(origin_query_benchmark_list)):
-            origin_cost = origin_query_benchmark_list[i]
-            rewrite_cost = rewrite_query_benchmark_list[i]
-            total_origin_query_cost += origin_cost[1]
-            total_rewrite_query_cost += rewrite_cost[1]
-            improvement = 1 - rewrite_cost[1] / origin_cost[1]
-            data_rows.append([origin_cost[1], rewrite_cost[1], "%.2f%%" % (100.0 * improvement), origin_cost[0],
-                              rewrite_cost[0]])
+            origin_latency = origin_query_benchmark_list[i]
+            optimized_latency = rewrite_query_benchmark_list[i]
+            total_origin_query_cost += origin_latency[1]
+            total_rewrite_query_cost += optimized_latency[1]
+            improvement = 1 - optimized_latency[1] / origin_latency[1]
+            data_rows.append([origin_latency[1], optimized_latency[1], "%.2f%%" % (100.0 * improvement), origin_latency[0],
+                              optimized_latency[0]])
+
         output_dataframe = pd.DataFrame(data_rows, columns=columns)
         output_dataframe.to_excel(excel_writer, index=False)
         end_time = time.time()
@@ -211,19 +228,38 @@ def error_callback(value):
 
 def multi_thread_query_function(pooled_db, sql, idx, total):
     try:
-        start_time = time.time()
         conn = pooled_db.connection()
         cursor = conn.cursor()
-        # cursor.execute("explain format=json %s" % sql)
-        cursor.execute("%s" % sql)
-        # fetched_row = cursor.fetchone()
-        # explain_json = json.loads(fetched_row[0])
-        # query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
 
-        end_time = time.time()
-        # time_used = end_time - start_time
-        query_cost = end_time - start_time
-        logger.debug("idx:%d, total:%d, query cost:%.2f, sql:%s" % (idx, total, query_cost, sql))
+        execute_time = 1
+
+        query_cost = 0
+        for i in range(execute_time):
+
+            '''
+            start_time = time.time()
+
+            # cursor.execute("explain format=json %s" % sql)
+            cursor.execute("%s" % sql)
+
+            # fetched_row = cursor.fetchone()
+            # explain_json = json.loads(fetched_row[0])
+            # query_cost = float(explain_json['query_block']['cost_info']['query_cost'])
+
+            end_time = time.time()
+            # time_used = end_time - start_time
+            query_cost = query_cost + end_time - start_time            
+            '''
+
+            cursor.execute("explain format=json %s" % sql)
+
+            fetched_row = cursor.fetchone()
+            explain_json = json.loads(fetched_row[0])
+            query_cost = query_cost + float(explain_json['query_block']['cost_info']['query_cost'])
+
+        query_cost = query_cost / execute_time
+
+        logger.debug("idx:%d, total:%d, query latency:%.2f, sql:%s" % (idx, total, query_cost, sql))
         cursor.close()
         conn.close()
         return sql, query_cost
@@ -274,6 +310,7 @@ def rewrite(pooled_db, input_sql_file, output_sql_file, args):
         # temp_schema_output.writelines([json.dumps(db_schema_list, ensure_ascii=True, indent=True)])
         temp_schema_output.write(json.dumps(db_schema_list, ensure_ascii=True, indent=True))
         temp_schema_output.close()
+
         input_sql_abs_path = os.path.abspath(input_sql_file)
         output_sql_abs_path = os.path.abspath(output_sql_file)
         if os.path.exists("target"):

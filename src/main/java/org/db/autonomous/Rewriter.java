@@ -241,7 +241,6 @@ public class Rewriter {
       }
     }
 
-
     if (node instanceof TableScan){
       String table_name = node.getTable().getQualifiedName().get(0);
       table_res.add(table_name);

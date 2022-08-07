@@ -75,7 +75,6 @@ public class DBConn {
       stmt.setQueryTimeout(5);
       boolean success = stmt.execute("explain FORMAT=JSON " + sql);
       if (success){
-        ResultSet res = stmt.getResultSet();
 
         ResultSet rs = stmt.getResultSet();
         rs.next();
