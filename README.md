@@ -1,7 +1,7 @@
 
 <div align="center">
 
-**An Product for SQL-Rewrite.**
+**A Demo of SQL Rewrite.**
 
 ------
 
